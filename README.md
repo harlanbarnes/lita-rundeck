@@ -1,7 +1,7 @@
 # lita-rundeck
 
-[![Build Status](https://travis-ci.org/harlanbarnes/lita-rundeck.png?branch=master)](https://travis-ci.org/harlanbarnes/lita-time)
-[![Coverage Status](https://coveralls.io/repos/harlanbarnes/lita-rundeck/badge.png)](https://coveralls.io/r/harlanbarnes/lita-time)
+[![Build Status](https://travis-ci.org/harlanbarnes/lita-rundeck.png?branch=master)](https://travis-ci.org/harlanbarnes/lita-rundeck)
+[![Coverage Status](https://coveralls.io/repos/harlanbarnes/lita-rundeck/badge.png)](https://coveralls.io/r/harlanbarnes/lita-rundeck)
 
 **lita-rundeck** is a handler for [Lita](https://github.com/jimmycuadra/lita) that interacts with a [Rundeck](http://rundeck.org/) server.
 
