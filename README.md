@@ -38,7 +38,7 @@ end
 
 ### Run
 
-Start a job execution.
+Start a job execution
 
 ```
 Lita > lita rundeck run aliasfoo
