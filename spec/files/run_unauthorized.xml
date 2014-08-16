@@ -1,0 +1,5 @@
+<result error='true' apiversion='10'>
+  <error code='api.error.item.unauthorized'>
+    <message>Not authorized for action "Run as User" for Job ID 3ba7c6c8-3d79-4b02-807f-eda67e321c23</message>
+  </error>
+</result>

@@ -1,0 +1,22 @@
+<result success='true' apiversion='10'>
+  <jobs count='3'>
+    <job id='984c6ce4-82be-4e8f-ab99-da4a5f050243'>
+      <name>Foo:Bar;baz</name>
+      <group />
+      <project>Litatest</project>
+      <description></description>
+    </job>
+    <job id='3ba7c6c8-3d79-4b02-807f-eda67e321c23'>
+      <name>dateoutput</name>
+      <group />
+      <project>Litatest</project>
+      <description></description>
+    </job>
+    <job id='f81c0e21-90dd-49cd-a214-6f8ef0560bd0'>
+      <name>test2</name>
+      <group />
+      <project>Litatest</project>
+      <description></description>
+    </job>
+  </jobs>
+</result>

@@ -1,0 +1,51 @@
+en:
+  lita:
+    handlers:
+      rundeck:
+        help:
+          info_key: "rundeck info"
+          info_value: "Returns rundeck version, server name, and users authorized to execute jobs"
+          projects_key: "rundeck project(s)"
+          projects_value: "Returns list of projects"
+          jobs_key: "rundeck job(s)"
+          jobs_value: "Returns a list of jobs by project"
+          exec_key: "rundeck exec(utions) [NUM]"
+          exec_value: "Returns a number of recent executions (default: 10)"
+          running_key: "rundeck running [NUM]"
+          running_value: "Returns currently running executions (default: 10)"
+          run_key: "rundeck run ( ALIAS_NAME | --project PROJECT_NAME --job JOB_NAME )"
+          run_value: "Run a project/job either via an alias or explicit names"
+          alias_key: "rundeck alias(es)"
+          alias_value: "List the Rundeck project/job aliases"
+          alias_register_key: "rundeck alias ALIAS_NAME --project PROJECT_NAME --job JOB_NAME"
+          alias_register_value: "Create a new alias for a project / job combination"
+          alias_forget_key: "rundeck forget ALIAS_NAME"
+          alias_forget_value: "Remove an alias"
+          options_key: "rundeck options ( ALIAS_NAME | --project PROJECT_NAME --job JOB_NAME )"
+          options_value: "Describe option details for a project/job either via an alias or explicit names"
+        info:
+          users_allowed: "Users allowed to execute jobs: "
+          no_users: "No users are currently allowed to execute jobs. Ask an admin to 'lita add CHAT_ID rundeck_users'"
+        projects:
+          none: "No projects found"
+        jobs:
+          none: "No jobs found"
+        executions:
+          none: "No executions found"
+        run:
+          token_unauthorized: "API token is unauthorized or lacks runAs permission; check the apitoken.aclpolicy"
+          unauthorized: "You aren't authorized to run jobs"
+          failed: "Something went wrong with the job execution"
+          success: "Execution %{id} is running"
+          conflict: "Job is already running and only allows one execution at a time"
+        alias:
+          none: "No aliases have been registered yet"
+          list: "Alias = [Project] - Job"
+          registered: "Alias registered"
+          forgotten: "Alias removed"
+          exists: "Alias already exists"
+          notexists: "Alias not found"
+          format: "Format is bad, see help for more info"
+        misc:
+          definition_error: "Something went wrong finding the job definition"
+          job_not_found: "Can't find an alias or project and job"

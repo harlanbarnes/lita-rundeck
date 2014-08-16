@@ -1,0 +1,24 @@
+<joblist>
+  <job>
+    <id>3ba7c6c8-3d79-4b02-807f-eda67e321c23</id>
+    <loglevel>INFO</loglevel>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <node-step-plugin type='localexec'>
+          <configuration>
+            <entry key='command' value='bash -c "for i in $(seq 1 ${option.SECONDS}); do d=$(date); echo $i $d; sleep 1; done"' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+    </sequence>
+    <description></description>
+    <name>dateoutput</name>
+    <context>
+      <project>Litatest</project>
+      <options>
+        <option name='SECONDS' regex='\d+' required='true' />
+      </options>
+    </context>
+    <uuid>3ba7c6c8-3d79-4b02-807f-eda67e321c23</uuid>
+  </job>
+</joblist>

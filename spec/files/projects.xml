@@ -1,0 +1,8 @@
+<result success='true' apiversion='10'>
+  <projects count='1'>
+    <project href='https://rundeck.mycompany.org/api/10/project/Litatest'>
+      <name>Litatest</name>
+      <description></description>
+    </project>
+  </projects>
+</result>

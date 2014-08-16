@@ -1,0 +1,188 @@
+<result success='true' apiversion='10'>
+  <executions count='10' total='63' offset='0' max='10'>
+    <execution id='285' href='https://rundeck.mycompany.org/execution/follow/285' status='succeeded' project='Litatest'>
+      <user>Shell User</user>
+      <date-started unixtime='1408028788860'>2014-08-14T15:06:28Z</date-started>
+      <date-ended unixtime='1408029392033'>2014-08-14T15:16:32Z</date-ended>
+      <job id='3ba7c6c8-3d79-4b02-807f-eda67e321c23' averageDuration='176162'>
+        <name>dateoutput</name>
+        <group></group>
+        <project>Litatest</project>
+        <description></description>
+        <options>
+          <option name='SECONDS' value='600' />
+        </options>
+      </job>
+      <description>Plugin[localexec, nodeStep: true]</description>
+      <argstring>-SECONDS 600</argstring>
+      <successfulNodes>
+        <node name='rundeck.mycompany.org' />
+      </successfulNodes>
+    </execution>
+    <execution id='283' href='https://rundeck.mycompany.org/execution/follow/283' status='succeeded' project='Litatest'>
+      <user>Shell User</user>
+      <date-started unixtime='1407983261310'>2014-08-14T02:27:41Z</date-started>
+      <date-ended unixtime='1407983266562'>2014-08-14T02:27:46Z</date-ended>
+      <job id='3ba7c6c8-3d79-4b02-807f-eda67e321c23' averageDuration='176162'>
+        <name>dateoutput</name>
+        <group></group>
+        <project>Litatest</project>
+        <description></description>
+        <options>
+          <option name='SECONDS' value='5' />
+        </options>
+      </job>
+      <description>Plugin[localexec, nodeStep: true]</description>
+      <argstring>-SECONDS 5</argstring>
+      <successfulNodes>
+        <node name='rundeck.mycompany.org' />
+      </successfulNodes>
+    </execution>
+    <execution id='282' href='https://rundeck.mycompany.org/execution/follow/282' status='succeeded' project='Litatest'>
+      <user>Shell User</user>
+      <date-started unixtime='1407978429558'>2014-08-14T01:07:09Z</date-started>
+      <date-ended unixtime='1407978489986'>2014-08-14T01:08:09Z</date-ended>
+      <job id='3ba7c6c8-3d79-4b02-807f-eda67e321c23' averageDuration='176162'>
+        <name>dateoutput</name>
+        <group></group>
+        <project>Litatest</project>
+        <description></description>
+        <options>
+          <option name='SECONDS' value='60' />
+        </options>
+      </job>
+      <description>Plugin[localexec, nodeStep: true]</description>
+      <argstring>-SECONDS 60</argstring>
+      <successfulNodes>
+        <node name='rundeck.mycompany.org' />
+      </successfulNodes>
+    </execution>
+    <execution id='260' href='https://rundeck.mycompany.org/execution/follow/260' status='succeeded' project='Litatest'>
+      <user>Shell User</user>
+      <date-started unixtime='1407708217960'>2014-08-10T22:03:37Z</date-started>
+      <date-ended unixtime='1407708220158'>2014-08-10T22:03:40Z</date-ended>
+      <job id='3ba7c6c8-3d79-4b02-807f-eda67e321c23' averageDuration='176162'>
+        <name>dateoutput</name>
+        <group></group>
+        <project>Litatest</project>
+        <description></description>
+      </job>
+      <description>Plugin[localexec, nodeStep: true]</description>
+      <argstring />
+      <successfulNodes>
+        <node name='rundeck.mycompany.org' />
+      </successfulNodes>
+    </execution>
+    <execution id='259' href='https://rundeck.mycompany.org/execution/follow/259' status='succeeded' project='Litatest'>
+      <user>Shell User</user>
+      <date-started unixtime='1407706456531'>2014-08-10T21:34:16Z</date-started>
+      <date-ended unixtime='1407707061907'>2014-08-10T21:44:21Z</date-ended>
+      <job id='3ba7c6c8-3d79-4b02-807f-eda67e321c23' averageDuration='176162'>
+        <name>dateoutput</name>
+        <group></group>
+        <project>Litatest</project>
+        <description></description>
+        <options>
+          <option name='SECONDS' value='600' />
+        </options>
+      </job>
+      <description>Plugin[localexec, nodeStep: true]</description>
+      <argstring>-SECONDS 600</argstring>
+      <successfulNodes>
+        <node name='rundeck.mycompany.org' />
+      </successfulNodes>
+    </execution>
+    <execution id='258' href='https://rundeck.mycompany.org/execution/follow/258' status='succeeded' project='Litatest'>
+      <user>Shell User</user>
+      <date-started unixtime='1407706386633'>2014-08-10T21:33:06Z</date-started>
+      <date-ended unixtime='1407706386756'>2014-08-10T21:33:06Z</date-ended>
+      <job id='3ba7c6c8-3d79-4b02-807f-eda67e321c23' averageDuration='176162'>
+        <name>dateoutput</name>
+        <group></group>
+        <project>Litatest</project>
+        <description></description>
+        <options>
+          <option name='SECOND' value='600' />
+        </options>
+      </job>
+      <description>Plugin[localexec, nodeStep: true]</description>
+      <argstring>-SECOND 600</argstring>
+      <successfulNodes>
+        <node name='rundeck.mycompany.org' />
+      </successfulNodes>
+    </execution>
+    <execution id='257' href='https://rundeck.mycompany.org/execution/follow/257' status='succeeded' project='Litatest'>
+      <user>Shell User</user>
+      <date-started unixtime='1407706289716'>2014-08-10T21:31:29Z</date-started>
+      <date-ended unixtime='1407706350069'>2014-08-10T21:32:30Z</date-ended>
+      <job id='3ba7c6c8-3d79-4b02-807f-eda67e321c23' averageDuration='176162'>
+        <name>dateoutput</name>
+        <group></group>
+        <project>Litatest</project>
+        <description></description>
+        <options>
+          <option name='SECONDS' value='60' />
+        </options>
+      </job>
+      <description>Plugin[localexec, nodeStep: true]</description>
+      <argstring>-SECONDS 60</argstring>
+      <successfulNodes>
+        <node name='rundeck.mycompany.org' />
+      </successfulNodes>
+    </execution>
+    <execution id='256' href='https://rundeck.mycompany.org/execution/follow/256' status='succeeded' project='Litatest'>
+      <user>Shell User</user>
+      <date-started unixtime='1407694901813'>2014-08-10T18:21:41Z</date-started>
+      <date-ended unixtime='1407694901878'>2014-08-10T18:21:41Z</date-ended>
+      <job id='3ba7c6c8-3d79-4b02-807f-eda67e321c23' averageDuration='176162'>
+        <name>dateoutput</name>
+        <group></group>
+        <project>Litatest</project>
+        <description></description>
+      </job>
+      <description>Plugin[localexec, nodeStep: true]</description>
+      <argstring />
+      <successfulNodes>
+        <node name='rundeck.mycompany.org' />
+      </successfulNodes>
+    </execution>
+    <execution id='255' href='https://rundeck.mycompany.org/execution/follow/255' status='succeeded' project='Litatest'>
+      <user>Shell User</user>
+      <date-started unixtime='1407651633183'>2014-08-10T06:20:33Z</date-started>
+      <date-ended unixtime='1407652236445'>2014-08-10T06:30:36Z</date-ended>
+      <job id='3ba7c6c8-3d79-4b02-807f-eda67e321c23' averageDuration='176162'>
+        <name>dateoutput</name>
+        <group></group>
+        <project>Litatest</project>
+        <description></description>
+        <options>
+          <option name='SECONDS' value='600' />
+        </options>
+      </job>
+      <description>Plugin[localexec, nodeStep: true]</description>
+      <argstring>-SECONDS 600</argstring>
+      <successfulNodes>
+        <node name='rundeck.mycompany.org' />
+      </successfulNodes>
+    </execution>
+    <execution id='254' href='https://rundeck.mycompany.org/execution/follow/254' status='succeeded' project='Litatest'>
+      <user>Shell User</user>
+      <date-started unixtime='1407651562717'>2014-08-10T06:19:22Z</date-started>
+      <date-ended unixtime='1407651623149'>2014-08-10T06:20:23Z</date-ended>
+      <job id='3ba7c6c8-3d79-4b02-807f-eda67e321c23' averageDuration='176162'>
+        <name>dateoutput</name>
+        <group></group>
+        <project>Litatest</project>
+        <description></description>
+        <options>
+          <option name='SECONDS' value='60' />
+        </options>
+      </job>
+      <description>Plugin[localexec, nodeStep: true]</description>
+      <argstring>-SECONDS 60</argstring>
+      <successfulNodes>
+        <node name='rundeck.mycompany.org' />
+      </successfulNodes>
+    </execution>
+  </executions>
+</result>

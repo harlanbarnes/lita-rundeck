@@ -1,0 +1,6 @@
+<result error='true' apiversion='10'>
+  <error code='api.error.job.options-invalid'>
+    <message>Job options were not valid: Option 'SECONDS' doesn't match regular expression \d+, value: XXX
+</message>
+  </error>
+</result>
