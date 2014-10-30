@@ -83,10 +83,10 @@ Lita > lita rundeck jobs
 
 ### Executions
 
-List execuctions (activity)
+List executions (activity)
 
 ```
-Lita > lita rundeck execuctions
+Lita > lita rundeck executions
 295 succeeded Shell User [Litatest] dateoutput SECONDS:600 start:2014-08-16T04:36:43Z end:2014-08-16T04:46:46Z
 296 succeeded Shell User [Litatest] dateoutput SECONDS:60 start:2014-08-16T05:17:07Z end:2014-08-16T05:18:09Z
 ```
@@ -96,7 +96,7 @@ Lita > lita rundeck execuctions
 Optionally, limit the output to a number of executions
 
 ```
-Lita > lita rundeck execuctions 1
+Lita > lita rundeck executions 1
 296 succeeded Shell User [Litatest] dateoutput SECONDS:60 start:2014-08-16T05:17:07Z end:2014-08-16T05:18:09Z
 ```
 
