@@ -403,6 +403,8 @@ module Lita
 
           def get(path,options={})
             uri = "#{@url}/#{path}"
+            # Replace double slashes with a single one, excluding the // after the :
+            uri.gsub!(/([^:])\/\//, '\1/')
             options[:authtoken] = @token
 
             http_response = @http.get(
