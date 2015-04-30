@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = "lita-rundeck"
-  spec.version       = "0.0.1"
+  spec.version       = "0.0.2"
   spec.authors       = ["Harlan Barnes"]
   spec.email         = ["hbarnes@pobox.com"]
   spec.description   = %q{Lita handler for interacting with Rundeck}
