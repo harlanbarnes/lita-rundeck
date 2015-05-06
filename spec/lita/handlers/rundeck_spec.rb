@@ -2,6 +2,10 @@ require "spec_helper"
 
 describe Lita::Handlers::Rundeck, lita_handler: true do
 
+  let(:rundeck_noxml) do
+    "This is not XML and should fail"
+  end
+
   let(:rundeck_info) do
     File.read("spec/files/info.xml")
   end
@@ -58,6 +62,27 @@ describe Lita::Handlers::Rundeck, lita_handler: true do
     File.read("spec/files/definition.xml")
   end
 
+  let(:rundeck_output) do
+    File.read("spec/files/output.xml")
+  end
+
+  let(:rundeck_output_limit_five) do
+    File.read("spec/files/output_limit_five.xml")
+  end
+
+  let(:rundeck_output_empty) do
+    File.read("spec/files/output_empty.xml")
+  end
+
+  let(:rundeck_output_exec_noexist) do
+    File.read("spec/files/output_exec_noexist.xml")
+  end
+
+
+  let(:rundeck_output_notcomplete) do
+    File.read("spec/files/output_notcomplete.xml")
+  end
+
   it { routes_command("rundeck info").to(:info) }
   it { routes_command("rundeck projects").to(:projects) }
   it { routes_command("rundeck jobs").to(:jobs) }
@@ -72,6 +97,10 @@ describe Lita::Handlers::Rundeck, lita_handler: true do
   it { routes_command("rundeck run --project Litatest --job dateoutput --options SECONDS=60").to(:run) }
   it { routes_command("rundeck options aliasfoo").to(:options) }
   it { routes_command("rundeck options --project Litatest --job dateoutput").to(:options) }
+  it { routes_command("rundeck output 5").to(:output) }
+  it { routes_command("rundeck output 5 5").to(:output) }
+  it { routes_command("rundeck output 6").to(:output) }
+  it { routes_command("rundeck output 7").to(:output) }
 
   def grab_request(method, status, body)
     response = double('Faraday::Response', status: status, body: body)
@@ -86,6 +115,13 @@ describe Lita::Handlers::Rundeck, lita_handler: true do
   end
 
   describe "#info" do
+    it "returns nothing (but logs a message) if the API response is not XML" do
+      grab_request("get", 200, rundeck_noxml)
+      send_command("rundeck info")
+      # @todo - I don't know rspec well enough to mock up the logger
+      expect(replies.last).to be nil
+    end
+
     it "replies with the rundeck server information with no users" do
       grab_request("get", 200, rundeck_info)
       send_command("rundeck info")
@@ -377,6 +413,70 @@ EOF
       send_command("rundeck options aliasfoo")
       expect(replies.last).to eq <<-EOF.chomp
 Can't find an alias or project and job
+EOF
+    end
+  end
+
+  describe "#output" do
+    it "display output of an existing job with default number of lines" do
+      grab_request("get", 200, rundeck_output)
+      send_command("rundeck output 5")
+      expect(replies.last).to eq <<-EOF.chomp
+Execution 5 output:
+  23:16:30 Text of line 1
+  23:16:31 Text of line 2
+  23:16:32 Text of line 3
+  23:16:33 Text of line 4
+  23:16:34 Text of line 5
+  23:16:35 Text of line 6
+  23:16:36 Text of line 7
+  23:16:37 Text of line 8
+  23:16:38 Text of line 9
+  23:16:39 Text of line 10
+Execution 5 is complete (took 10.348s)
+EOF
+    end
+
+    it "display output of an existing job with custom number of lines (5)" do
+      grab_request("get", 200, rundeck_output_limit_five)
+      send_command("rundeck output 5 5")
+      expect(replies.last).to eq <<-EOF.chomp
+Execution 5 output:
+  23:16:35 Text of line 6
+  23:16:36 Text of line 7
+  23:16:37 Text of line 8
+  23:16:38 Text of line 9
+  23:16:39 Text of line 10
+Execution 5 is complete (took 10.348s)
+EOF
+    end
+
+    it "display output of an existing job that has no output" do
+      grab_request("get", 200, rundeck_output_empty)
+      send_command("rundeck output 6")
+      expect(replies.last).to eq <<-EOF.chomp
+Execution 6 output:
+Execution 6 is complete (took 0.171s)
+EOF
+    end
+
+    it "display output of an existing job that has no output" do
+      grab_request("get", 200, rundeck_output_exec_noexist)
+      send_command("rundeck output 7")
+      expect(replies.last).to eq <<-EOF.chomp
+Can't find execution for this command
+EOF
+    end
+
+    it "display output of an existing job that hasn't completed with default number of lines" do
+      grab_request("get", 200, rundeck_output_notcomplete)
+      send_command("rundeck output 8")
+      expect(replies.last).to eq <<-EOF.chomp
+Execution 8 output:
+  23:16:30 Text of line 1
+  23:16:31 Text of line 2
+  23:16:32 Text of line 3
+Execution 8 is not complete (running 3.75s)
 EOF
     end
   end

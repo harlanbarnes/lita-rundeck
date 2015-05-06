@@ -109,6 +109,40 @@ Lita > lita rundeck running
 297 running Shell User [Litatest] dateoutput SECONDS:60 start:2014-08-16T05:46:32Z
 ```
 
+### Output
+
+List log output for given execution (showing last 10 lines, by default):
+
+```
+Lita > lita output 5
+Execution 5 output:
+  23:16:30 Text of line 1
+  23:16:31 Text of line 2
+  23:16:32 Text of line 3
+  23:16:33 Text of line 4
+  23:16:34 Text of line 5
+  23:16:35 Text of line 6
+  23:16:36 Text of line 7
+  23:16:37 Text of line 8
+  23:16:38 Text of line 9
+  23:16:39 Text of line 10
+Execution 5 is complete (took 10.348s)
+EOF
+```
+
+Optionally, take an extra integer for the number lines to return:
+
+```
+Lita > rundeck output 5 5
+Execution 5 output:
+  23:16:35 Text of line 6
+  23:16:36 Text of line 7
+  23:16:37 Text of line 8
+  23:16:38 Text of line 9
+  23:16:39 Text of line 10
+Execution 5 is complete (took 10.348s)
+```
+
 ### Options
 
 List options for a job in detail
