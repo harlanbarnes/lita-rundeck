@@ -38,23 +38,44 @@ end
 
 ### Run
 
-Start a job execution
+Start a job execution. Optionally, have Lita return part or all of the output log to the channel when complete.
+
+Syntax:
+```
+rundeck run ALIAS|--project NAME --job NAME [--options KEY=VALUE,KEY=VALUE] [--report all|NUMBER]
+```
+
+* Pass either an alias name or `--project` AND `--name` to execute the job
+* Optionally, pass Job options (defined in rundeck itself) as key/value pairs delimited by a comma
+* Finally, add `--report` with the string `all` to return the entirety of the log output to the channel once the job is complete. (Note Lita won't begin checking for job completion until the average duration of the job is complete.) You can also limit the output reported back to the channel. To do this, give the `--report` option an integer representing the number of lines to return from the end of the log.
+
+Examples:
 
 ```
 Lita > lita rundeck run aliasfoo
-Execution 297 is running
+Execution 285 is running. Average job duration is 1.717 seconds.
 
 Lita > rundeck run aliasfoo --options SECONDS=60
-Execution 298 is running
+Execution 286 is running. Average job duration is 1.717 seconds.
 
 Lita > rundeck run --project Litatest --job dateoutput
-Execution 299 is running
+Execution 287 is running. Average job duration is 1.717 seconds.
 
 Lita > rundeck run --project Litatest --job dateoutput --options SECONDS=60
-Execution 300 is running
+Execution 288 is running. Average job duration is 1.717 seconds.
 
 Lita > rundeck run --project Litatest --job dateoutput --options SECONDS=60,FORMAT=iso8601
-Execution 301 is running
+Execution 289 is running. Average job duration is 1.717 seconds.
+
+Lita > rundeck run --project Litatest --job dateoutput --options SECONDS=60,FORMAT=iso8601 --report 5
+Execution 289 is running. Average job duration is 1.717 seconds.
+Execution 289 output:
+  18:18:27 26 Sat May 9 18:18:27 UTC 2015
+  18:18:28 27 Sat May 9 18:18:28 UTC 2015
+  18:18:29 28 Sat May 9 18:18:29 UTC 2015
+  18:18:30 29 Sat May 9 18:18:30 UTC 2015
+  18:18:31 30 Sat May 9 18:18:31 UTC 2015
+Execution 289 is complete (took 30.49s)
 ```
 
 * Users must be [added by a Lita admin](http://docs.lita.io/getting-started/usage/#authorization-groups) to the rundeck_users group to execute jobs
@@ -107,6 +128,40 @@ List currently running executions
 ```
 Lita > lita rundeck running
 297 running Shell User [Litatest] dateoutput SECONDS:60 start:2014-08-16T05:46:32Z
+```
+
+### Output
+
+List log output for given execution (showing last 10 lines, by default):
+
+```
+Lita > lita output 5
+Execution 5 output:
+  23:16:30 Text of line 1
+  23:16:31 Text of line 2
+  23:16:32 Text of line 3
+  23:16:33 Text of line 4
+  23:16:34 Text of line 5
+  23:16:35 Text of line 6
+  23:16:36 Text of line 7
+  23:16:37 Text of line 8
+  23:16:38 Text of line 9
+  23:16:39 Text of line 10
+Execution 5 is complete (took 10.348s)
+EOF
+```
+
+Optionally, take an extra integer for the number lines to return:
+
+```
+Lita > rundeck output 5 5
+Execution 5 output:
+  23:16:35 Text of line 6
+  23:16:36 Text of line 7
+  23:16:37 Text of line 8
+  23:16:38 Text of line 9
+  23:16:39 Text of line 10
+Execution 5 is complete (took 10.348s)
 ```
 
 ### Options

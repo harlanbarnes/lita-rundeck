@@ -3,17 +3,17 @@
     <execution id='285' href='https://rundeck.mycompany.org/execution/follow/285' status='running' project='Litatest'>
       <user>Shell User</user>
       <date-started unixtime='1408028788860'>2014-08-14T15:06:28Z</date-started>
-      <job id='3ba7c6c8-3d79-4b02-807f-eda67e321c23' averageDuration='128717'>
+      <job id='3ba7c6c8-3d79-4b02-807f-eda67e321c23' averageDuration='1717'>
         <name>dateoutput</name>
         <group></group>
         <project>Litatest</project>
         <description></description>
         <options>
-          <option name='SECONDS' value='600' />
+          <option name='SECONDS' value='30' />
         </options>
       </job>
       <description>Plugin[localexec, nodeStep: true]</description>
-      <argstring>-SECONDS 600</argstring>
+      <argstring>-SECONDS 30</argstring>
     </execution>
   </executions>
 </result>

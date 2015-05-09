@@ -1,8 +1,9 @@
 <result success='true' apiversion='10'>
   <executions count='1'>
-    <execution id='285' href='https://rundeck.mycompany.org/execution/follow/285' status='running' project='Litatest'>
-      <user>Shell User</user>
+    <execution id='285' href='https://release.bazumedia.com/execution/follow/285' status='succeeded' project='Litatest'>
+      <user>admin</user>
       <date-started unixtime='1408028788860'>2014-08-14T15:06:28Z</date-started>
+      <date-ended unixtime='1408028808000'>2014-08-14T15:06:48Z</date-ended>
       <job id='3ba7c6c8-3d79-4b02-807f-eda67e321c23' averageDuration='1717'>
         <name>dateoutput</name>
         <group></group>
@@ -14,6 +15,9 @@
       </job>
       <description>Plugin[localexec, nodeStep: true]</description>
       <argstring>-SECONDS 30</argstring>
+      <successfulNodes>
+        <node name='release.bazumedia.com' />
+      </successfulNodes>
     </execution>
   </executions>
 </result>

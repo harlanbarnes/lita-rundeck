@@ -1,0 +1,19 @@
+<result success='true' apiversion='10'>
+  <output>
+    <id>8</id>
+    <offset>1583</offset>
+    <completed>false</completed>
+    <execCompleted>false</execCompleted>
+    <hasFailedNodes>false</hasFailedNodes>
+    <execState>running</execState>
+    <lastModified>1430873952000</lastModified>
+    <execDuration>3750</execDuration>
+    <percentLoaded>100.0</percentLoaded>
+    <totalSize>1583</totalSize>
+    <entries>
+      <entry time='23:16:30' absolute_time='2015-04-30T23:16:30Z' level='NORMAL' user='rundeck' command='' stepctx='1' node='rundeck.mycompany.org'>Text of line 1</entry>
+      <entry time='23:16:31' absolute_time='2015-04-30T23:16:31Z' level='NORMAL' user='rundeck' command='' stepctx='1' node='rundeck.mycompany.org'>Text of line 2</entry>
+      <entry time='23:16:32' absolute_time='2015-04-30T23:16:32Z' level='NORMAL' user='rundeck' command='' stepctx='1' node='rundeck.mycompany.org'>Text of line 3</entry>
+    </entries>
+  </output>
+</result>

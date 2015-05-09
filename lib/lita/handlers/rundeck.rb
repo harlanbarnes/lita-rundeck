@@ -25,6 +25,11 @@ module Lita
           t("help.exec_key") => t("help.exec_value")
       }
 
+      route /rundeck output (\d+)(?: (\d+)?)?/i,
+        :output, command: true, help: {
+          t("help.output_key") => t("help.output_value")
+      }
+
       route /rundeck running(?: (\d+)?)?/i,
         :running, command: true, help: {
           t("help.running_key") => t("help.running_value")
@@ -44,9 +49,6 @@ module Lita
           },
           job: {
             short: "j"
-          },
-          options: {
-            short: "o"
           }
         },
         help: {
@@ -70,6 +72,9 @@ module Lita
           },
           options: {
             short: "o"
+          },
+          report: {
+            short: "r"
           }
         },
         help: {
@@ -100,7 +105,10 @@ module Lita
 
       def info(response)
         text = []
-        text.push(client.info)
+        output = client.info
+        return unless output
+
+        text.push(output)
         if users
           text.push(t("info.users_allowed") +
             users.map{ |u| u.name }.join(",") )
@@ -182,7 +190,7 @@ module Lita
         user    = response.user.name || response.user.id || robot.name
         options = parse_options(args[:options]) if args[:options]
 
-        # keywoard arguments win over an alias (if someone happens to give both)
+        # keyword arguments win over an alias (if someone happens to give both)
         unless project && job
           project, job = aliasdb.forward(name)
         end
@@ -192,19 +200,64 @@ module Lita
           return
         end
 
-        response.reply resolve(client.run(project,job,options,user))
+        execution = client.run(project,job,options,user)
+        response.reply resolve(execution)
+
+        if execution.status == 'running' && args[:report]
+          report_back(response, execution, args[:report])
+        end
+      end
+
+      def report_back(response, execution, output_limit)
+        # remove the output log line limit if value is 'all' or 'full'
+        output_limit = nil if /^all$|^full$/i.match(output_limit)
+
+        # wait the average duration + 1s
+        average_duration = execution.job.average_duration.to_i / 1000
+        sleep average_duration + 1
+
+        # check if complete and loop until complete with 10 second check / announce
+        while true
+          execution = client.execution(execution.id)
+          if execution.status == 'running'
+            current_duration = Time.now.to_i - execution.start_unixtime.to_i / 1000
+            response.reply t(
+              "run.still_running",
+              id: execution.id,
+              current_duration: current_duration,
+              average_duration: average_duration
+              )
+            sleep 10
+          else
+            response.reply client.output(execution.id, output_limit).pretty_print_output
+            return
+          end
+        end
       end
 
       def resolve(e)
         case e.status
         when "running"
-          t("run.success", id: e.id)
+          t("run.success", id: e.id, average_duration: e.job.average_duration.to_f / 1000.0)
         when "api.error.execution.conflict"
           t("run.conflict")
         when "api.error.item.unauthorized"
           t("run.token_unauthorized")
         when "api.error.job.options-invalid"
           e.message.gsub(/\n/,"")
+        end
+      end
+
+      def output(response)
+        id  = response.matches[0][0]
+        max = response.matches[0][1] if response.matches[0][1]
+
+        output = client.output(id, max)
+
+        if output.error_code && output.error_code == 'api.error.item.doesnotexist'
+          response.reply t("misc.execution_not_found")
+        else
+          response.reply output.pretty_print_output
         end
       end
 
@@ -387,6 +440,7 @@ module Lita
           attr_accessor :url, :token
 
           MAX_EXECUTIONS = 10
+          MAX_OUTPUT     = 10
 
           def self.ensure_array(ref)
             return [ref] if ref.is_a?(Hash)
@@ -402,31 +456,39 @@ module Lita
           end
 
           def get(path,options={})
-            uri = "#{@url}/#{path}"
+            uri = "#{@url}#{path}"
             # Replace double slashes with a single one, excluding the // after the :
             uri.gsub!(/([^:])\/\//, '\1/')
             options[:authtoken] = @token
+
+            request_failed = false
 
             http_response = @http.get(
               uri,
               options
             )
 
-            # Trying to avoid nokogiri but not wanting to use ReXML directly,
-            # hence the xmlsimple gem. ForceArray has usually worked well for
-            # me, but this XML data seemed to cause it to be inconsistent. So
-            # the ensure_array method and a little extra code has worked.
-            hash = ::XmlSimple.xml_in(
-              http_response.body,
-              {
-                "ForceArray" => false,
-                "GroupTags"  => {
-                  "options"    => "option"
+            hash = {}
+            if http_response.body =~ /<.*?>/m
+              # Trying to avoid nokogiri but not wanting to use ReXML directly,
+              # hence the xmlsimple gem. ForceArray has usually worked well for
+              # me, but this XML data seemed to cause it to be inconsistent. So
+              # the ensure_array method and a little extra code has worked.
+              hash = ::XmlSimple.xml_in(
+                http_response.body,
+                {
+                  "ForceArray" => false,
+                  "GroupTags"  => {
+                    "options"    => "option"
+                  }
                 }
-              }
-            )
+              )
+            else
+              @log.error "Request failed: API response not XML"
+              request_failed = true
+            end
 
-            if @debug
+            if @debug || request_failed
               output = options.map{ |k,v| "#{k.to_s}=#{v}" }.join("&")
               @log.debug "API request: GET #{uri}&#{output}"
               @log.debug "API response: (HTTP #{http_response.status}) #{http_response.body}"
@@ -437,7 +499,8 @@ module Lita
           end
 
           def info
-            get('/api/1/system/info')["success"][1]["message"]
+            response = get('/api/1/system/info')
+            response["success"][1]["message"] if response["success"]
           end
 
           def projects
@@ -456,6 +519,10 @@ module Lita
             Definition.load(self,job(project,name).id)
           end
 
+          def execution(id)
+            Execution.load(self, id)
+          end
+
           def executions(max)
             max ||= MAX_EXECUTIONS
             @executions ||= Execution.all(self,max).sort_by{|i| i.id}.reverse[0,max.to_i].reverse
@@ -469,6 +536,11 @@ module Lita
           def run(project,name,options,user)
             job = job(project,name)
             Job.run(self,job.id,options,user)
+          end
+
+          def output(id, max)
+            max ||= MAX_OUTPUT
+            Output.load(self, id, max)
           end
         end
 
@@ -529,6 +601,59 @@ module Lita
           end
         end
 
+        class Output
+          attr_accessor :id, :entries, :completed, :exec_duration, :error_code, :error_message
+
+          def self.load(client, id, max)
+            # @todo Workaround for this: https://github.com/rundeck/rundeck/issues/1207
+            max = max.to_i + 2
+            response = client.get("/api/5/execution/#{id}/output?lastlines=#{max}")
+            if response["output"]
+              Output.new(response["output"]) 
+            elsif response["error"][0]
+              Output.new(
+                "id" => id,
+                "error_code"  => response["error"][1]["code"],
+                "error_message" => response["error"][1]["message"]
+              )
+            end
+          end
+
+          def initialize(hash)
+            @id            = hash["id"]
+
+            if hash["completed"] == "true"
+              @completed = true
+            elsif hash["completed"] == "false"
+              @completed = false
+            end
+
+            @exec_duration = hash["execDuration"]
+
+            @entries       = []
+            if hash["entries"] && hash["entries"]["entry"]
+              @entries = hash["entries"]["entry"]
+            end
+
+            @error_code    = hash["error_code"]
+            @error_message = hash["error_message"]
+          end
+
+          def pretty_print_output
+            text = ["Execution #{id} output:"]
+            entries.each do |entry|
+              text.push("  #{entry["time"]} #{entry["content"]}")
+            end
+
+            if @completed
+              text.push("Execution #{id} is complete (took #{@exec_duration.to_i  / 1000.0}s)")
+            else
+              text.push("Execution #{id} is not complete (running #{@exec_duration.to_i / 1000.0}s)")
+            end
+            text.join("\n")
+          end
+        end
+
         class Job
           attr_accessor :id, :name, :group, :project, :description,
                         :average_duration, :options
@@ -574,15 +699,15 @@ module Lita
             @name             = hash["name"]
             @group            = hash["group"]
             @project          = hash["project"]
-            @description      = hash["description"]            
-            @average_duration = hash["average_duration"] if hash["average_duration"]
+            @description      = hash["description"]
+            @average_duration = hash["averageDuration"] if hash["averageDuration"]
             @options          = Client.ensure_array(hash["options"]) if hash["options"]
           end
         end
 
         class Execution
-          attr_accessor :id, :href, :status, :message, :project, :user, :start,
-                        :end, :job, :description, :argstring, :successful_nodes,
+          attr_accessor :id, :href, :status, :message, :project, :user, :start, :start_unixtime,
+                        :end, :end_unixtime, :job, :description, :argstring, :successful_nodes,
                         :failed_nodes, :aborted_by
 
           def self.all(client,max)
@@ -600,6 +725,11 @@ module Lita
             all
           end
 
+          def self.load(client, id)
+            response = client.get("/api/1/execution/#{id}")
+            Execution.new(response["executions"]["execution"]) if response["executions"]["count"].to_i == 1
+          end
+
           def initialize(hash)
             @id               = hash["id"]
             @href             = hash["href"]
@@ -607,8 +737,17 @@ module Lita
             @message          = hash["message"]
             @project          = hash["project"]
             @user             = hash["user"]
-            @start            = hash["date-started"]["content"] if hash["date-started"]
-            @end              = hash["date-ended"]["content"] if hash["date-ended"]
+
+            if hash["date-started"]
+              @start_unixtime = hash["date-started"]["unixtime"]
+              @start          = hash["date-started"]["content"]
+            end
+
+            if hash["date-ended"]
+              @end_unixtime = hash["date-ended"]["unixtime"]
+              @end          = hash["date-ended"]["content"]
+            end
+
             @job              = Job.new(hash["job"]) if hash["job"]
             @description      = hash["description"]
             @argstring        = hash["argstring"]
@@ -641,7 +780,7 @@ module Lita
             all
           end
 
-        end        
+        end
       end
     end
 
