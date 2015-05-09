@@ -26,6 +26,10 @@ describe Lita::Handlers::Rundeck, lita_handler: true do
     File.read("spec/files/jobs_empty.xml")
   end
 
+  let(:rundeck_execution) do
+    File.read("spec/files/execution.xml")
+  end
+
   let(:rundeck_executions) do
     File.read("spec/files/executions.xml")
   end
@@ -95,17 +99,18 @@ describe Lita::Handlers::Rundeck, lita_handler: true do
   it { routes_command("rundeck run aliasfoo --options SECONDS=60").to(:run) }
   it { routes_command("rundeck run --project Litatest --job dateoutput").to(:run) }
   it { routes_command("rundeck run --project Litatest --job dateoutput --options SECONDS=60").to(:run) }
+  it { routes_command("rundeck run --project Litatest --job dateoutput --options SECONDS=60 --report all").to(:run) }
+  it { routes_command("rundeck run --project Litatest --job dateoutput --options SECONDS=60 --report 5").to(:run) }
   it { routes_command("rundeck options aliasfoo").to(:options) }
   it { routes_command("rundeck options --project Litatest --job dateoutput").to(:options) }
-  it { routes_command("rundeck output 5").to(:output) }
-  it { routes_command("rundeck output 5 5").to(:output) }
+  it { routes_command("rundeck output 285").to(:output) }
+  it { routes_command("rundeck output 285 5").to(:output) }
   it { routes_command("rundeck output 6").to(:output) }
   it { routes_command("rundeck output 7").to(:output) }
 
   def grab_request(method, status, body)
     response = double('Faraday::Response', status: status, body: body)
-    expect_any_instance_of(Faraday::Connection).to \
-      receive(method.to_sym).and_return(response)
+    expect_any_instance_of(Faraday::Connection).to receive(method.to_sym).and_return(response)
   end
 
   before do
@@ -235,7 +240,7 @@ EOF
       grab_request("get", 200, rundeck_running)
       send_command("rundeck running")
       expect(replies.last).to eq <<-EOF.chomp
-285 running Shell User [Litatest] dateoutput SECONDS:600 start:2014-08-14T15:06:28Z
+285 running Shell User [Litatest] dateoutput SECONDS:30 start:2014-08-14T15:06:28Z
 EOF
     end
 
@@ -266,7 +271,7 @@ EOF
       send_command("rundeck alias register aliasfoo --project Litatest --job dateoutput")
       send_command("rundeck run aliasfoo --options SECONDS=60")
       expect(replies.last).to eq <<-EOF.chomp
-Execution 285 is running
+Execution 285 is running. Average job duration is 1.717 seconds.
 EOF
     end
 
@@ -277,9 +282,114 @@ EOF
       grab_request("get", 200, rundeck_run)
       send_command("rundeck run --project Litatest --job dateoutput --options SECONDS=60")
       expect(replies.last).to eq <<-EOF.chomp
-Execution 285 is running
+Execution 285 is running. Average job duration is 1.717 seconds.
 EOF
     end
+
+    it "submit a fully qualified job and have it report back all the log" do
+      allow(Lita::Authorization).to receive(:user_in_group?).and_return(true)
+      grab_request("get", 200, rundeck_projects)
+      grab_request("get", 200, rundeck_jobs)
+      grab_request("get", 200, rundeck_run)
+      grab_request("get", 200, rundeck_execution)
+      grab_request("get", 200, rundeck_output)
+      send_command("rundeck run --project Litatest --job dateoutput --options SECONDS=60 --report all")
+      expect(replies.first).to eq <<-EOF.chomp
+Execution 285 is running. Average job duration is 1.717 seconds.
+EOF
+      expect(replies.last).to eq <<-EOF.chomp
+Execution 285 output:
+  23:16:30 Text of line 1
+  23:16:31 Text of line 2
+  23:16:32 Text of line 3
+  23:16:33 Text of line 4
+  23:16:34 Text of line 5
+  23:16:35 Text of line 6
+  23:16:36 Text of line 7
+  23:16:37 Text of line 8
+  23:16:38 Text of line 9
+  23:16:39 Text of line 10
+Execution 285 is complete (took 10.348s)
+EOF
+    end
+
+    it "submit a fully qualified job and have it wait at least once, then report back all the log" do
+      @time_now = Time.parse("2014-08-14T15:06:33Z")
+      expect(Time).to receive(:now).and_return(@time_now)
+
+      allow(Lita::Authorization).to receive(:user_in_group?).and_return(true)
+      grab_request("get", 200, rundeck_projects)
+      grab_request("get", 200, rundeck_jobs)
+      grab_request("get", 200, rundeck_run)
+      grab_request("get", 200, rundeck_running)
+      grab_request("get", 200, rundeck_execution)
+      grab_request("get", 200, rundeck_output)
+      send_command("rundeck run --project Litatest --job dateoutput --options SECONDS=60 --report all")
+      expect(replies.first).to eq <<-EOF.chomp
+Execution 285 is running. Average job duration is 1.717 seconds.
+EOF
+      expect(replies[1]).to eq <<-EOF.chomp
+Execution 285 has been running for 5s (1s average)
+EOF
+      expect(replies.last).to eq <<-EOF.chomp
+Execution 285 output:
+  23:16:30 Text of line 1
+  23:16:31 Text of line 2
+  23:16:32 Text of line 3
+  23:16:33 Text of line 4
+  23:16:34 Text of line 5
+  23:16:35 Text of line 6
+  23:16:36 Text of line 7
+  23:16:37 Text of line 8
+  23:16:38 Text of line 9
+  23:16:39 Text of line 10
+Execution 285 is complete (took 10.348s)
+EOF
+    end
+
+    it "submit a fully qualified job and have it report back a limited log" do
+      allow(Lita::Authorization).to receive(:user_in_group?).and_return(true)
+      grab_request("get", 200, rundeck_projects)
+      grab_request("get", 200, rundeck_jobs)
+      grab_request("get", 200, rundeck_run)
+      grab_request("get", 200, rundeck_execution)
+      grab_request("get", 200, rundeck_output_limit_five)
+      send_command("rundeck run --project Litatest --job dateoutput --options SECONDS=60 --report 5")
+      expect(replies.first).to eq <<-EOF.chomp
+Execution 285 is running. Average job duration is 1.717 seconds.
+EOF
+      expect(replies.last).to eq <<-EOF.chomp
+Execution 285 output:
+  23:16:35 Text of line 6
+  23:16:36 Text of line 7
+  23:16:37 Text of line 8
+  23:16:38 Text of line 9
+  23:16:39 Text of line 10
+Execution 285 is complete (took 10.348s)
+EOF
+    end
+
+#     it "submit a fully qualified job and have it report back a limited log" do
+#       allow(Lita::Authorization).to receive(:user_in_group?).and_return(true)
+#       grab_request("get", 200, rundeck_projects)
+#       grab_request("get", 200, rundeck_jobs)
+#       grab_request("get", 200, rundeck_run)
+#       grab_request("get", 200, rundeck_execution)
+#       grab_request("get", 200, rundeck_output_limit_five)
+#       send_command("rundeck run --project Litatest --job dateoutput --options SECONDS=60 --report 5")
+#       expect(replies.first).to eq <<-EOF.chomp
+# Execution 285 is running. Average job duration is 1.717 seconds.
+# EOF
+#       expect(replies.last).to eq <<-EOF.chomp
+# Execution 285 output:
+#   23:16:35 Text of line 6
+#   23:16:36 Text of line 7
+#   23:16:37 Text of line 8
+#   23:16:38 Text of line 9
+#   23:16:39 Text of line 10
+# Execution 285 is complete (took 10.348s)
+# EOF
+#     end
 
     it "submit a non-existent job" do
       allow(Lita::Authorization).to receive(:user_in_group?).and_return(true)
@@ -422,7 +532,7 @@ EOF
       grab_request("get", 200, rundeck_output)
       send_command("rundeck output 5")
       expect(replies.last).to eq <<-EOF.chomp
-Execution 5 output:
+Execution 285 output:
   23:16:30 Text of line 1
   23:16:31 Text of line 2
   23:16:32 Text of line 3
@@ -433,21 +543,21 @@ Execution 5 output:
   23:16:37 Text of line 8
   23:16:38 Text of line 9
   23:16:39 Text of line 10
-Execution 5 is complete (took 10.348s)
+Execution 285 is complete (took 10.348s)
 EOF
     end
 
     it "display output of an existing job with custom number of lines (5)" do
       grab_request("get", 200, rundeck_output_limit_five)
-      send_command("rundeck output 5 5")
+      send_command("rundeck output 285 5")
       expect(replies.last).to eq <<-EOF.chomp
-Execution 5 output:
+Execution 285 output:
   23:16:35 Text of line 6
   23:16:36 Text of line 7
   23:16:37 Text of line 8
   23:16:38 Text of line 9
   23:16:39 Text of line 10
-Execution 5 is complete (took 10.348s)
+Execution 285 is complete (took 10.348s)
 EOF
     end
 

@@ -72,6 +72,9 @@ module Lita
           },
           options: {
             short: "o"
+          },
+          report: {
+            short: "r"
           }
         },
         help: {
@@ -197,13 +200,45 @@ module Lita
           return
         end
 
-        response.reply resolve(client.run(project,job,options,user))
+        execution = client.run(project,job,options,user)
+        response.reply resolve(execution)
+
+        if execution.status == 'running' && args[:report]
+          report_back(response, execution, args[:report])
+        end
+      end
+
+      def report_back(response, execution, output_limit)
+        # remove the output log line limit if value is 'all' or 'full'
+        output_limit = nil if /^all$|^full$/i.match(output_limit)
+
+        # wait the average duration + 1s
+        average_duration = execution.job.average_duration.to_i / 1000
+        sleep average_duration + 1
+
+        # check if complete and loop until complete with 10 second check / announce
+        while true
+          execution = client.execution(execution.id)
+          if execution.status == 'running'
+            current_duration = Time.now.to_i - execution.start_unixtime.to_i / 1000
+            response.reply t(
+              "run.still_running",
+              id: execution.id,
+              current_duration: current_duration,
+              average_duration: average_duration
+              )
+            sleep 10
+          else
+            response.reply client.output(execution.id, output_limit).pretty_print_output
+            return
+          end
+        end
       end
 
       def resolve(e)
         case e.status
         when "running"
-          t("run.success", id: e.id)
+          t("run.success", id: e.id, average_duration: e.job.average_duration.to_f / 1000.0)
         when "api.error.execution.conflict"
           t("run.conflict")
         when "api.error.item.unauthorized"
@@ -484,6 +519,10 @@ module Lita
             Definition.load(self,job(project,name).id)
           end
 
+          def execution(id)
+            Execution.load(self, id)
+          end
+
           def executions(max)
             max ||= MAX_EXECUTIONS
             @executions ||= Execution.all(self,max).sort_by{|i| i.id}.reverse[0,max.to_i].reverse
@@ -660,15 +699,15 @@ module Lita
             @name             = hash["name"]
             @group            = hash["group"]
             @project          = hash["project"]
-            @description      = hash["description"]            
-            @average_duration = hash["average_duration"] if hash["average_duration"]
+            @description      = hash["description"]
+            @average_duration = hash["averageDuration"] if hash["averageDuration"]
             @options          = Client.ensure_array(hash["options"]) if hash["options"]
           end
         end
 
         class Execution
-          attr_accessor :id, :href, :status, :message, :project, :user, :start,
-                        :end, :job, :description, :argstring, :successful_nodes,
+          attr_accessor :id, :href, :status, :message, :project, :user, :start, :start_unixtime,
+                        :end, :end_unixtime, :job, :description, :argstring, :successful_nodes,
                         :failed_nodes, :aborted_by
 
           def self.all(client,max)
@@ -686,6 +725,11 @@ module Lita
             all
           end
 
+          def self.load(client, id)
+            response = client.get("/api/1/execution/#{id}")
+            Execution.new(response["executions"]["execution"]) if response["executions"]["count"].to_i == 1
+          end
+
           def initialize(hash)
             @id               = hash["id"]
             @href             = hash["href"]
@@ -693,8 +737,17 @@ module Lita
             @message          = hash["message"]
             @project          = hash["project"]
             @user             = hash["user"]
-            @start            = hash["date-started"]["content"] if hash["date-started"]
-            @end              = hash["date-ended"]["content"] if hash["date-ended"]
+
+            if hash["date-started"]
+              @start_unixtime = hash["date-started"]["unixtime"]
+              @start          = hash["date-started"]["content"]
+            end
+
+            if hash["date-ended"]
+              @end_unixtime = hash["date-ended"]["unixtime"]
+              @end          = hash["date-ended"]["content"]
+            end
+
             @job              = Job.new(hash["job"]) if hash["job"]
             @description      = hash["description"]
             @argstring        = hash["argstring"]
