@@ -49,6 +49,9 @@ rundeck run ALIAS|--project NAME --job NAME [--options KEY=VALUE,KEY=VALUE] [--r
 * Optionally, pass Job options (defined in rundeck itself) as key/value pairs delimited by a comma
 * Finally, add `--report` with the string `all` to return the entirety of the log output to the channel once the job is complete. (Note Lita won't begin checking for job completion until the average duration of the job is complete.) You can also limit the output reported back to the channel. To do this, give the `--report` option an integer representing the number of lines to return from the end of the log.
 
+**WARNING!**
+The `--report` switch will effectively block Lita from responding until the job is complete. If you have a small team and are using Lita in a sort of "single-threaded" manner, then this is fine. However, if you are using Lita for anything more complex, you probably don't want this. Lita will, however, queue up your requests during the execution time and respond accordingly when complete. I am looking for a solution to this at the moment.
+
 Examples:
 
 ```
