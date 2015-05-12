@@ -64,13 +64,13 @@ Execution 286 is running. Average job duration is 1.717 seconds.
 Lita > rundeck run --project Litatest --job dateoutput
 Execution 287 is running. Average job duration is 1.717 seconds.
 
-Lita > rundeck run --project Litatest --job dateoutput --options SECONDS=60
+Lita > rundeck run --project Litatest --job dateoutput --options SECONDS=30
 Execution 288 is running. Average job duration is 1.717 seconds.
 
-Lita > rundeck run --project Litatest --job dateoutput --options SECONDS=60,FORMAT=iso8601
+Lita > rundeck run --project Litatest --job dateoutput --options SECONDS=30,FORMAT=iso8601
 Execution 289 is running. Average job duration is 1.717 seconds.
 
-Lita > rundeck run --project Litatest --job dateoutput --options SECONDS=60,FORMAT=iso8601 --report 5
+Lita > rundeck run --project Litatest --job dateoutput --options SECONDS=30,FORMAT=iso8601 --report 5
 Execution 289 is running. Average job duration is 1.717 seconds.
 Execution 289 output:
   18:18:27 26 Sat May 9 18:18:27 UTC 2015
